@@ -5,9 +5,12 @@ import (
 	config "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
+
 	db := config.DbConn()
 
 	db.AutoMigrate(&model.Auth{})
