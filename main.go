@@ -4,6 +4,7 @@ import (
 	"github.com/azzzub/jobless/auth"
 	config "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
+	"github.com/azzzub/jobless/project"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
@@ -13,7 +14,7 @@ func main() {
 
 	db := config.DbConn()
 
-	db.AutoMigrate(&model.Auth{})
+	db.AutoMigrate(&model.Auth{}, &model.Project{})
 
 	// Creating the server
 	app := fiber.New()
@@ -24,10 +25,18 @@ func main() {
 		return c.SendString("Hello!")
 	})
 
+	// Auth router V1
+
 	authRouteV1 := v1.Group("/auth")
 
 	authRouteV1.Post("/login", auth.LoginHandler)
 	authRouteV1.Post("/register", auth.RegisterHandler)
+
+	// Project router V1
+
+	projectRouteV1 := v1.Group("/project")
+
+	projectRouteV1.Post("/", project.CreateProject)
 
 	app.Listen(":9000")
 }

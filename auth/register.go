@@ -38,9 +38,11 @@ func RegisterHandler(c *fiber.Ctx) error {
 		return utils.ErrorHandler(c, 500, err)
 	}
 
-	username := body.Username
-	email := body.Email
-	password := body.Password
+	var (
+		username = body.Username
+		email    = body.Email
+		password = body.Password
+	)
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 
@@ -62,7 +64,7 @@ func RegisterHandler(c *fiber.Ctx) error {
 	}
 
 	finalResponse := fiber.Map{
-		"message": "Success add new user!",
+		"message": "success add new user",
 		"data":    &auth,
 	}
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	database "github.com/azzzub/jobless/config"
+	config "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
 	"github.com/dgrijalva/jwt-go"
@@ -33,7 +33,7 @@ func LoginHandler(c *fiber.Ctx) error {
 		return utils.ErrorHandler(c, http.StatusBadRequest, err)
 	}
 
-	db := database.DbConn()
+	db := config.DbConn()
 
 	auth := new(model.Auth)
 
