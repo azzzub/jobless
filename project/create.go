@@ -56,7 +56,7 @@ func CreateProject(c *fiber.Ctx) error {
 
 	project := model.Project{
 		CreatorId: decodedToken.ID,
-		Name:      body.Name,
+		Name:      strings.ToLower(body.Name),
 		Desc:      body.Desc,
 		Price:     body.Price,
 		Deadline:  body.Deadline,
