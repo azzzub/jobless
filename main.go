@@ -5,6 +5,7 @@ import (
 
 	"github.com/azzzub/jobless/auth"
 	config "github.com/azzzub/jobless/config"
+	"github.com/azzzub/jobless/gql"
 	"github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/project"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,9 @@ func main() {
 				"message": "status ok",
 			})
 		})
+		// GraphQL
+		v1.GET("/gql", gql.GraphQL())
+		v1.POST("/gql", gql.GraphQL())
 	}
 	// Auth router V1
 	authRouterV1 := v1.Group("/auth")

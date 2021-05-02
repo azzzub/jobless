@@ -63,7 +63,7 @@ func CreateProject(c *gin.Context) {
 
 	project := model.Project{
 		CreatorId: decodedToken.ID,
-		Name:      strings.ToLower(body.Name),
+		Name:      body.Name,
 		Desc:      body.Desc,
 		Price:     body.Price,
 		Deadline:  body.Deadline,
