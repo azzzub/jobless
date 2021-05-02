@@ -1,9 +1,10 @@
 package utils
 
-import "github.com/gofiber/fiber/v2"
+import "github.com/gin-gonic/gin"
 
-func ErrorHandler(c *fiber.Ctx, statusCode int, err error) error {
-	return c.Status(statusCode).JSON(fiber.Map{
-		"message": err.Error(),
+func ErrorHandler(c *gin.Context, status int, err error) {
+	c.JSON(status, gin.H{
+		"errorCode": status,
+		"message":   err.Error(),
 	})
 }

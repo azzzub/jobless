@@ -2,16 +2,17 @@ package project
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	config "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 
 	"strings"
 
 	"github.com/azzzub/jobless/utils"
-	"github.com/gofiber/fiber/v2"
 )
 
 type projectField struct {
@@ -21,37 +22,43 @@ type projectField struct {
 	Deadline time.Time `json:"deadline" validate:"required"`
 }
 
-func CreateProject(c *fiber.Ctx) error {
+func CreateProject(c *gin.Context) {
 	db := config.DbConn()
 
 	// Get the bearer auth header
-	authHeader := c.Get("Authorization")
+	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
-		return utils.ErrorHandler(c, fiber.StatusUnauthorized, errors.New("bearer auth must be provided"))
+		utils.ErrorHandler(c, http.StatusUnauthorized,
+			errors.New("bearer auth must be provided"))
+		return
 	}
 
 	token := strings.Split(authHeader, " ")
 	decodedToken, err := utils.TokenValidator(token[1])
 	if err != nil {
-		return utils.ErrorHandler(c, fiber.StatusUnauthorized, err)
+		utils.ErrorHandler(c, http.StatusUnauthorized, err)
+		return
 	}
 
 	// Check whether the creator id is exist
 	var auth model.Auth
 	checkCreatorId := db.First(&auth).Where("ID = ?", decodedToken.ID)
 	if checkCreatorId.Error != nil {
-		return utils.ErrorHandler(c, fiber.StatusBadRequest,
+		utils.ErrorHandler(c, http.StatusBadRequest,
 			errors.New("cannot find the creator, recheck your token"))
+		return
 	}
 
 	var body projectField
-	if err := c.BodyParser(&body); err != nil {
-		return utils.ErrorHandler(c, fiber.StatusBadRequest, err)
+	if err := c.BindJSON(&body); err != nil {
+		utils.ErrorHandler(c, http.StatusBadRequest, err)
+		return
 	}
 
 	validate := validator.New()
 	if err := validate.Struct(&body); err != nil {
-		return utils.ErrorHandler(c, fiber.StatusBadRequest, err)
+		utils.ErrorHandler(c, http.StatusBadRequest, err)
+		return
 	}
 
 	project := model.Project{
@@ -64,11 +71,12 @@ func CreateProject(c *fiber.Ctx) error {
 
 	result := db.Create(&project)
 	if result.Error != nil {
-		return utils.ErrorHandler(c, fiber.StatusBadGateway, result.Error)
+		utils.ErrorHandler(c, http.StatusBadRequest, result.Error)
+		return
 	}
 
-	return c.JSON(fiber.Map{
-		"data":    project,
+	c.JSON(http.StatusOK, gin.H{
 		"message": "success add new project",
+		"data":    project,
 	})
 }

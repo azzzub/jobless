@@ -1,11 +1,13 @@
 package auth
 
 import (
+	"net/http"
+
 	config "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
-	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,58 +17,49 @@ type registerField struct {
 	Password string `validate:"required,min=8"`
 }
 
-func validateStruct(body registerField) error {
+func validateRegister(body registerField) error {
 	validate := validator.New()
-
-	err := validate.Struct(body)
-
-	if err != nil {
+	if err := validate.Struct(body); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func RegisterHandler(c *fiber.Ctx) error {
-	body := new(registerField)
+func RegisterHandler(c *gin.Context) {
+	db := config.DbConn()
+	var body registerField
 
-	if err := c.BodyParser(body); err != nil {
-		return utils.ErrorHandler(c, 500, err)
+	if err := c.BindJSON(&body); err != nil {
+		utils.ErrorHandler(c, http.StatusBadRequest, err)
+		return
 	}
 
-	if err := validateStruct(*body); err != nil {
-		return utils.ErrorHandler(c, 500, err)
+	if err := validateRegister(body); err != nil {
+		utils.ErrorHandler(c, http.StatusBadRequest, err)
+		return
 	}
 
-	var (
-		username = body.Username
-		email    = body.Email
-		password = body.Password
-	)
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
 	if err != nil {
-		return utils.ErrorHandler(c, 500, err)
+		utils.ErrorHandler(c, http.StatusUnauthorized, err)
+		return
 	}
 
 	auth := model.Auth{
-		Username: &username,
-		Email:    &email,
+		Username: &body.Username,
+		Email:    &body.Email,
 		Password: string(hashedPassword),
 	}
 
-	db := config.DbConn()
 	result := db.Create(&auth)
-
 	if result.Error != nil {
-		return utils.ErrorHandler(c, 500, result.Error)
+		utils.ErrorHandler(c, http.StatusBadRequest, result.Error)
+		return
 	}
 
-	finalResponse := fiber.Map{
+	c.JSON(http.StatusOK, gin.H{
 		"message": "success add new user",
-		"data":    &auth,
-	}
-
-	return c.JSON(finalResponse)
+		"data":    auth,
+	})
 }

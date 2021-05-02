@@ -10,8 +10,8 @@ import (
 	"github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
-	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,33 +20,42 @@ type loginField struct {
 	Password string `validate:"required,min=8"`
 }
 
-func LoginHandler(c *fiber.Ctx) error {
-	body := new(loginField)
-
-	if err := c.BodyParser(body); err != nil {
-		return utils.ErrorHandler(c, http.StatusBadRequest, err)
+func validateLogin(body loginField) error {
+	validation := validator.New()
+	if err := validation.Struct(body); err != nil {
+		return err
 	}
 
-	validate := validator.New()
+	return nil
+}
 
-	if err := validate.Struct(body); err != nil {
-		return utils.ErrorHandler(c, http.StatusBadRequest, err)
-	}
-
+func LoginHandler(c *gin.Context) {
+	var body loginField
 	db := config.DbConn()
 
-	auth := new(model.Auth)
-
-	result := db.Where("username = ?", body.Uoe).Or("email = ?", body.Uoe).First(&auth)
-
-	if result.Error != nil {
-		return utils.ErrorHandler(c, http.StatusUnauthorized, errors.New("wrong email/username"))
+	if err := c.BindJSON(&body); err != nil {
+		utils.ErrorHandler(c, http.StatusBadRequest, err)
+		return
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(auth.Password), []byte(body.Password))
+	if err := validateLogin(body); err != nil {
+		utils.ErrorHandler(c, http.StatusBadRequest, err)
+		return
+	}
 
-	if err != nil {
-		return utils.ErrorHandler(c, http.StatusUnauthorized, errors.New("wrong password"))
+	var auth model.Auth
+
+	result := db.Where("username = ?", body.Uoe).Or("email = ?", body.Uoe).First(&auth)
+	if result.Error != nil {
+		utils.ErrorHandler(c, http.StatusUnauthorized, errors.New("wrong email/username"))
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(auth.Password),
+		[]byte(body.Password)); err != nil {
+		utils.ErrorHandler(c, http.StatusUnauthorized, errors.New("wrong password"))
+		return
 	}
 
 	claims := model.Token{
@@ -57,10 +66,9 @@ func LoginHandler(c *fiber.Ctx) error {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	signedToken, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
-	return c.JSON(fiber.Map{
+	c.JSON(http.StatusOK, gin.H{
 		"token": signedToken,
 	})
 }
