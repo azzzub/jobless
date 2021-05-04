@@ -10,6 +10,8 @@ import (
 	db "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/graph/generated"
 	"github.com/azzzub/jobless/graph/model"
+
+	"github.com/icza/gox/fmtx"
 )
 
 func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewProject) (*model.Project, error) {
@@ -41,6 +43,11 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 	result := db.Find(&projects)
 	if result.Error != nil {
 		return nil, result.Error
+	}
+
+	for _, project := range projects {
+		priceString := "Rp" + fmtx.FormatInt(int64(project.Price), 3, '.') + ",-"
+		project.PriceString = &priceString
 	}
 
 	return projects, nil

@@ -11,12 +11,13 @@ type NewProject struct {
 }
 
 type Project struct {
-	ID        int    `json:"ID"`
-	CreatorID int    `json:"creator_id"`
-	Name      string `json:"name"`
-	Desc      string `json:"desc"`
-	Price     int    `json:"price"`
-	Deadline  string `json:"deadline"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID          int     `json:"ID"`
+	CreatorID   int     `json:"creator_id"`
+	Name        string  `json:"name"`
+	Desc        string  `json:"desc"`
+	Price       int     `json:"price"`
+	PriceString *string `json:"priceString"`
+	Deadline    string  `json:"deadline"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
 }

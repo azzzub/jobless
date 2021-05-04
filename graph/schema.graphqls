@@ -8,6 +8,7 @@ type Project {
   name: String!
   desc: String!
   price: Int!
+  priceString: String
   deadline: String!
   created_at: String!
   updated_at: String!

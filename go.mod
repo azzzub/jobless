@@ -14,6 +14,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/graphql-go/graphql v0.7.9
 	github.com/graphql-go/handler v0.2.3
+	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/joho/godotenv v1.3.0

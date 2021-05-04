@@ -48,14 +48,15 @@ type ComplexityRoot struct {
 	}
 
 	Project struct {
-		CreatedAt func(childComplexity int) int
-		CreatorID func(childComplexity int) int
-		Deadline  func(childComplexity int) int
-		Desc      func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Price     func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		CreatorID   func(childComplexity int) int
+		Deadline    func(childComplexity int) int
+		Desc        func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Price       func(childComplexity int) int
+		PriceString func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	Query struct {
@@ -146,6 +147,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Price(childComplexity), true
 
+	case "Project.priceString":
+		if e.complexity.Project.PriceString == nil {
+			break
+		}
+
+		return e.complexity.Project.PriceString(childComplexity), true
+
 	case "Project.updated_at":
 		if e.complexity.Project.UpdatedAt == nil {
 			break
@@ -234,6 +242,7 @@ type Project {
   name: String!
   desc: String!
   price: Int!
+  priceString: String
   deadline: String!
   created_at: String!
   updated_at: String!
@@ -545,6 +554,38 @@ func (ec *executionContext) _Project_price(ctx context.Context, field graphql.Co
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Project_priceString(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Project",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PriceString, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Project_deadline(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
@@ -1972,6 +2013,8 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "priceString":
+			out.Values[i] = ec._Project_priceString(ctx, field, obj)
 		case "deadline":
 			out.Values[i] = ec._Project_deadline(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
