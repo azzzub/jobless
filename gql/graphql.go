@@ -1,6 +1,8 @@
 package gql
 
 import (
+	"time"
+
 	config "github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
 	"github.com/gin-gonic/gin"
@@ -136,8 +138,64 @@ func GraphQL() gin.HandlerFunc {
 		},
 	})
 
+	mutationQuery := graphql.NewObject(graphql.ObjectConfig{
+		Name: "MutationQuery",
+		Fields: graphql.Fields{
+			"createProject": &graphql.Field{
+				Type:        projectType,
+				Description: "Create a new project",
+				Args: graphql.FieldConfigArgument{
+					"creator_id": &graphql.ArgumentConfig{
+						Description: "The project creator identifier number",
+						Type:        graphql.NewNonNull(graphql.Int),
+					},
+					"name": &graphql.ArgumentConfig{
+						Description: "The name of the project",
+						Type:        graphql.NewNonNull(graphql.String),
+					},
+					"desc": &graphql.ArgumentConfig{
+						Description: "The description of the project",
+						Type:        graphql.NewNonNull(graphql.String),
+					},
+					"price": &graphql.ArgumentConfig{
+						Description: "The price of the project",
+						Type:        graphql.NewNonNull(graphql.Int),
+					},
+					"deadline": &graphql.ArgumentConfig{
+						Description: "The deadline of the project",
+						Type:        graphql.NewNonNull(graphql.DateTime),
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					creatorId, _ := p.Args["creator_id"].(int)
+					name, _ := p.Args["name"].(string)
+					desc, _ := p.Args["desc"].(string)
+					price, _ := p.Args["price"].(int)
+					deadline, _ := p.Args["deadline"].(time.Time)
+
+					project := model.Project{
+						CreatorId: uint(creatorId),
+						Name:      name,
+						Desc:      desc,
+						Price:     uint(price),
+						Deadline:  deadline,
+					}
+
+					result := db.Create(&project)
+
+					if result.Error != nil {
+						return nil, result.Error
+					}
+
+					return project, nil
+				},
+			},
+		},
+	})
+
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
-		Query: rootQuery,
+		Query:    rootQuery,
+		Mutation: mutationQuery,
 	})
 
 	if err != nil {
