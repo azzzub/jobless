@@ -28,3 +28,7 @@ type Token struct {
 	ID uint `json:"id"`
 	jwt.StandardClaims
 }
+
+type ContextKey struct {
+	Name string
+}

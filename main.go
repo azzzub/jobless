@@ -12,6 +12,7 @@ import (
 	"github.com/azzzub/jobless/graph/generated"
 	"github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/project"
+	"github.com/azzzub/jobless/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -48,6 +49,7 @@ func main() {
 	// Creating the server
 	// Move to gin-gonic framework
 	router := gin.Default()
+	router.GET("/_gql", playgroundHandler())
 
 	// Version 1 API
 	v1 := router.Group("/v1")
@@ -61,10 +63,14 @@ func main() {
 		v1.GET("/gql", gql.GraphQL())
 		v1.POST("/gql", gql.GraphQL())
 
-		// GraphQL gqlgen
-		v1.GET("/_gql", playgroundHandler())
-		v1.POST("/_gql/query", graphqlHandler())
 	}
+	// GraphQL gqlgen
+	gqlRouter := router.Group("/_gql")
+	{
+		gqlRouter.Use(utils.AuthMiddleware())
+		gqlRouter.POST("/query", graphqlHandler())
+	}
+
 	// Auth router V1
 	authRouterV1 := v1.Group("/auth")
 	{

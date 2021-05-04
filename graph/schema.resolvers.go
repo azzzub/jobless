@@ -26,7 +26,8 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	}
 
 	db := db.DbConn()
-	result := db.Create(&project)
+	result := db.Select("CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
+		Create(&project)
 	if result.Error != nil {
 		return nil, result.Error
 	}
