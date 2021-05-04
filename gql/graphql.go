@@ -26,12 +26,89 @@ func GraphQL() gin.HandlerFunc {
 					return nil, nil
 				},
 			},
+			"creator_id": &graphql.Field{
+				Type:        graphql.Int,
+				Description: "The creator's identifier of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.CreatorId, nil
+					}
+
+					return nil, nil
+				},
+			},
 			"name": &graphql.Field{
 				Type:        graphql.String,
 				Description: "The name of the project.",
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					if project, ok := p.Source.(model.Project); ok {
 						return project.Name, nil
+					}
+
+					return nil, nil
+				},
+			},
+			"desc": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The description of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.Desc, nil
+					}
+
+					return nil, nil
+				},
+			},
+			"price": &graphql.Field{
+				Type:        graphql.Int,
+				Description: "The price of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.Price, nil
+					}
+
+					return nil, nil
+				},
+			},
+			"deadline": &graphql.Field{
+				Type:        graphql.DateTime,
+				Description: "The deadline of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.Deadline, nil
+					}
+
+					return nil, nil
+				},
+			},
+			"created_at": &graphql.Field{
+				Type:        graphql.DateTime,
+				Description: "The created date of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.CreatedAt, nil
+					}
+
+					return nil, nil
+				},
+			},
+			"updated_at": &graphql.Field{
+				Type:        graphql.DateTime,
+				Description: "The modified date of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.UpdatedAt, nil
+					}
+
+					return nil, nil
+				},
+			},
+			"deleted_at": &graphql.Field{
+				Type:        graphql.DateTime,
+				Description: "The delete date of the project.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if project, ok := p.Source.(model.Project); ok {
+						return project.DeletedAt.Time, nil
 					}
 
 					return nil, nil
