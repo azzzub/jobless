@@ -15,7 +15,6 @@ import (
 	rawModel "github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/icza/gox/fmtx"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -148,7 +147,7 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 	}
 
 	for _, project := range projects {
-		priceString := "Rp" + fmtx.FormatInt(int64(project.Price), 3, '.') + ",-"
+		priceString := utils.ReadablePrice(project.Price)
 		project.PriceString = &priceString
 	}
 
@@ -162,6 +161,11 @@ func (r *queryResolver) Bids(ctx context.Context) ([]*model.Bid, error) {
 	result := db.Find(&bids)
 	if result.Error != nil {
 		return nil, result.Error
+	}
+
+	for _, bid := range bids {
+		priceString := utils.ReadablePrice(bid.Price)
+		bid.PriceString = &priceString
 	}
 
 	return bids, nil

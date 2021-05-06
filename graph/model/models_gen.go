@@ -12,13 +12,14 @@ type Auth struct {
 }
 
 type Bid struct {
-	ID        int    `json:"ID"`
-	BidderID  int    `json:"bidder_id"`
-	ProjectID int    `json:"project_id"`
-	Price     int    `json:"price"`
-	Comment   string `json:"comment"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID          int     `json:"ID"`
+	BidderID    int     `json:"bidder_id"`
+	ProjectID   int     `json:"project_id"`
+	Price       int     `json:"price"`
+	PriceString *string `json:"priceString"`
+	Comment     string  `json:"comment"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
 }
 
 type Login struct {

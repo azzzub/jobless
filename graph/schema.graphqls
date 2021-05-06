@@ -32,6 +32,7 @@ type Bid {
   bidder_id: Int!
   project_id: Int!
   price: Int!
+  priceString: String
   comment: String!
   created_at: String!
   updated_at: String!

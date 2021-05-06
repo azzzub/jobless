@@ -53,13 +53,14 @@ type ComplexityRoot struct {
 	}
 
 	Bid struct {
-		BidderID  func(childComplexity int) int
-		Comment   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Price     func(childComplexity int) int
-		ProjectID func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		BidderID    func(childComplexity int) int
+		Comment     func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Price       func(childComplexity int) int
+		PriceString func(childComplexity int) int
+		ProjectID   func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	LoginResponse struct {
@@ -193,6 +194,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bid.Price(childComplexity), true
+
+	case "Bid.priceString":
+		if e.complexity.Bid.PriceString == nil {
+			break
+		}
+
+		return e.complexity.Bid.PriceString(childComplexity), true
 
 	case "Bid.project_id":
 		if e.complexity.Bid.ProjectID == nil {
@@ -438,6 +446,7 @@ type Bid {
   bidder_id: Int!
   project_id: Int!
   price: Int!
+  priceString: String
   comment: String!
   created_at: String!
   updated_at: String!
@@ -947,6 +956,38 @@ func (ec *executionContext) _Bid_price(ctx context.Context, field graphql.Collec
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Bid_priceString(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Bid",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PriceString, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Bid_comment(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
@@ -3032,6 +3073,8 @@ func (ec *executionContext) _Bid(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "priceString":
+			out.Values[i] = ec._Bid_priceString(ctx, field, obj)
 		case "comment":
 			out.Values[i] = ec._Bid_comment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
