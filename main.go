@@ -68,7 +68,6 @@ func main() {
 	// GraphQL gqlgen
 	gqlRouter := router.Group("/_gql")
 	{
-		gqlRouter.Use(utils.AuthMiddleware())
 		gqlRouter.POST("/query", graphqlHandler())
 	}
 

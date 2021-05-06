@@ -2,6 +2,19 @@
 #
 # https://gqlgen.com/getting-started/
 
+type Auth {
+  ID: Int!
+  username: String!
+  email: String!
+  password: String!
+  created_at: String!
+  updated_at: String!
+}
+
+type LoginResponse {
+  token: String!
+}
+
 type Project {
   ID: Int!
   creator_id: Int!
@@ -29,8 +42,18 @@ type Query {
   bids: [Bid!]!
 }
 
+input Register {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input Login {
+  uoe: String!
+  password: String!
+}
+
 input NewProject {
-  creator_id: Int!
   name: String!
   desc: String!
   price: Int!
@@ -44,6 +67,8 @@ input NewBid {
 }
 
 type Mutation {
+  register(input: Register!): Auth!
+  login(input: Login!): LoginResponse!
   createProject(input: NewProject!): Project!
   createBid(input: NewBid!): Bid!
 }

@@ -2,6 +2,15 @@
 
 package model
 
+type Auth struct {
+	ID        int    `json:"ID"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
 type Bid struct {
 	ID        int    `json:"ID"`
 	BidderID  int    `json:"bidder_id"`
@@ -12,6 +21,15 @@ type Bid struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type Login struct {
+	Uoe      string `json:"uoe"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
 type NewBid struct {
 	ProjectID int    `json:"project_id"`
 	Price     int    `json:"price"`
@@ -19,11 +37,10 @@ type NewBid struct {
 }
 
 type NewProject struct {
-	CreatorID int    `json:"creator_id"`
-	Name      string `json:"name"`
-	Desc      string `json:"desc"`
-	Price     int    `json:"price"`
-	Deadline  string `json:"deadline"`
+	Name     string `json:"name"`
+	Desc     string `json:"desc"`
+	Price    int    `json:"price"`
+	Deadline string `json:"deadline"`
 }
 
 type Project struct {
@@ -36,4 +53,10 @@ type Project struct {
 	Deadline    string  `json:"deadline"`
 	CreatedAt   string  `json:"created_at"`
 	UpdatedAt   string  `json:"updated_at"`
+}
+
+type Register struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

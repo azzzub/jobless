@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	db "github.com/azzzub/jobless/config"
@@ -13,12 +14,81 @@ import (
 	"github.com/azzzub/jobless/graph/model"
 	rawModel "github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/icza/gox/fmtx"
+	"golang.org/x/crypto/bcrypt"
 )
 
+func (r *mutationResolver) Register(ctx context.Context, input model.Register) (*model.Auth, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
+	if err != nil {
+		return nil, err
+	}
+
+	auth := &model.Auth{
+		Username:  input.Username,
+		Email:     input.Email,
+		Password:  string(hashedPassword),
+		CreatedAt: time.Now().Format(time.RFC3339),
+		UpdatedAt: time.Now().Format(time.RFC3339),
+	}
+
+	db := db.DbConn()
+
+	result := db.Select("Username", "Email", "Password", "CreatedAt", "UpdatedAt").
+		Create(&auth)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return auth, nil
+}
+
+func (r *mutationResolver) Login(ctx context.Context, input model.Login) (*model.LoginResponse, error) {
+	auth := model.Auth{}
+	loginResponse := &model.LoginResponse{}
+
+	db := db.DbConn()
+
+	result := db.Where("username = ?", input.Uoe).Or("email = ?", input.Uoe).First(&auth)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(auth.Password),
+		[]byte(input.Password)); err != nil {
+		return nil, errors.New("wrong login information")
+	}
+
+	claims := &rawModel.Token{
+		ID: uint(auth.ID),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 2).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+
+	loginResponse.Token = signedToken
+
+	return loginResponse, nil
+}
+
 func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewProject) (*model.Project, error) {
+	gc, err := utils.GinContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := utils.AuthMiddlewareProc(gc)
+	if err != nil {
+		return nil, err
+	}
+
 	project := &model.Project{
-		CreatorID: input.CreatorID,
+		CreatorID: int(token.ID),
 		Name:      input.Name,
 		Desc:      input.Desc,
 		Price:     input.Price,
@@ -43,18 +113,13 @@ func (r *mutationResolver) CreateBid(ctx context.Context, input model.NewBid) (*
 		return nil, err
 	}
 
-	userId, exist := gc.Get("UserID")
-	if !exist {
-		return nil, errors.New("header not exist")
-	}
-
-	id, ok := userId.(*rawModel.Token)
-	if !ok {
-		return nil, errors.New("type convert error")
+	token, err := utils.AuthMiddlewareProc(gc)
+	if err != nil {
+		return nil, err
 	}
 
 	bid := &model.Bid{
-		BidderID:  int(id.ID),
+		BidderID:  int(token.ID),
 		ProjectID: input.ProjectID,
 		Price:     input.Price,
 		Comment:   input.Comment,
