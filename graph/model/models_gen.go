@@ -2,6 +2,22 @@
 
 package model
 
+type Bid struct {
+	ID        int    `json:"ID"`
+	BidderID  int    `json:"bidder_id"`
+	ProjectID int    `json:"project_id"`
+	Price     int    `json:"price"`
+	Comment   string `json:"comment"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type NewBid struct {
+	ProjectID int    `json:"project_id"`
+	Price     int    `json:"price"`
+	Comment   string `json:"comment"`
+}
+
 type NewProject struct {
 	CreatorID int    `json:"creator_id"`
 	Name      string `json:"name"`

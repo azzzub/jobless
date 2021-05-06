@@ -24,6 +24,14 @@ type Project struct {
 	Deadline  time.Time `json:"deadline"`
 }
 
+type Bid struct {
+	gorm.Model
+	BidderId  uint   `json:"bidder_id"`
+	ProjectId uint   `json:"project_id"`
+	Price     uint   `json:"price"`
+	Comment   string `json:"comment"`
+}
+
 type Token struct {
 	ID uint `json:"id"`
 	jwt.StandardClaims

@@ -14,8 +14,19 @@ type Project {
   updated_at: String!
 }
 
+type Bid {
+  ID: Int!
+  bidder_id: Int!
+  project_id: Int!
+  price: Int!
+  comment: String!
+  created_at: String!
+  updated_at: String!
+}
+
 type Query {
   projects: [Project!]!
+  bids: [Bid!]!
 }
 
 input NewProject {
@@ -26,6 +37,13 @@ input NewProject {
   deadline: String!
 }
 
+input NewBid {
+  project_id: Int!
+  price: Int!
+  comment: String!
+}
+
 type Mutation {
   createProject(input: NewProject!): Project!
+  createBid(input: NewBid!): Bid!
 }
