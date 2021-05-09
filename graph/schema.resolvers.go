@@ -15,16 +15,18 @@ import (
 	rawModel "github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (r *mutationResolver) Register(ctx context.Context, input model.Register) (*model.Auth, error) {
+func (r *mutationResolver) Register(ctx context.Context, input model.Register) (*model.User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
 	if err != nil {
 		return nil, err
 	}
 
-	auth := &model.Auth{
+	user := &model.User{
+		ID:        uuid.New().String(),
 		Username:  input.Username,
 		Email:     input.Email,
 		Password:  string(hashedPassword),
@@ -34,34 +36,34 @@ func (r *mutationResolver) Register(ctx context.Context, input model.Register) (
 
 	db := db.DbConn()
 
-	result := db.Select("Username", "Email", "Password", "CreatedAt", "UpdatedAt").
-		Create(&auth)
+	result := db.Select("ID", "Username", "Email", "Password", "CreatedAt", "UpdatedAt").
+		Create(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return auth, nil
+	return user, nil
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.Login) (*model.LoginResponse, error) {
-	auth := model.Auth{}
+	user := model.User{}
 	loginResponse := &model.LoginResponse{}
 
 	db := db.DbConn()
 
-	result := db.Where("username = ?", input.Uoe).Or("email = ?", input.Uoe).First(&auth)
+	result := db.Where("username = ?", input.Uoe).Or("email = ?", input.Uoe).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	if err := bcrypt.CompareHashAndPassword(
-		[]byte(auth.Password),
+		[]byte(user.Password),
 		[]byte(input.Password)); err != nil {
 		return nil, errors.New("wrong login information")
 	}
 
 	claims := &rawModel.Token{
-		ID: uint(auth.ID),
+		ID: user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 2).Unix(),
 		},
@@ -87,7 +89,8 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	}
 
 	project := &model.Project{
-		CreatorID: int(token.ID),
+		ID:        uuid.NewString(),
+		CreatorID: token.ID,
 		Name:      input.Name,
 		Desc:      input.Desc,
 		Price:     input.Price,
@@ -97,7 +100,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	}
 
 	db := db.DbConn()
-	result := db.Select("CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
+	result := db.Select("ID", "CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
 		Create(&project)
 	if result.Error != nil {
 		return nil, result.Error
@@ -118,7 +121,7 @@ func (r *mutationResolver) CreateBid(ctx context.Context, input model.NewBid) (*
 	}
 
 	bid := &model.Bid{
-		BidderID:  int(token.ID),
+		BidderID:  token.ID,
 		ProjectID: input.ProjectID,
 		Price:     input.Price,
 		Comment:   input.Comment,
@@ -141,7 +144,7 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 	var projects []*model.Project
 
 	db := db.DbConn()
-	result := db.Find(&projects)
+	result := db.Preload("Creator").Find(&projects)
 	if result.Error != nil {
 		return nil, result.Error
 	}

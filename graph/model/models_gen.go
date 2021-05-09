@@ -2,24 +2,17 @@
 
 package model
 
-type Auth struct {
-	ID        int    `json:"ID"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-}
-
 type Bid struct {
-	ID          int     `json:"ID"`
-	BidderID    int     `json:"bidder_id"`
-	ProjectID   int     `json:"project_id"`
-	Price       int     `json:"price"`
-	PriceString *string `json:"priceString"`
-	Comment     string  `json:"comment"`
-	CreatedAt   string  `json:"created_at"`
-	UpdatedAt   string  `json:"updated_at"`
+	ID          string   `json:"ID"`
+	BidderID    string   `json:"bidder_id"`
+	Bidder      *User    `json:"bidder"`
+	ProjectID   string   `json:"project_id"`
+	Project     *Project `json:"project"`
+	Price       int      `json:"price"`
+	PriceString *string  `json:"priceString"`
+	Comment     string   `json:"comment"`
+	CreatedAt   string   `json:"created_at"`
+	UpdatedAt   string   `json:"updated_at"`
 }
 
 type Login struct {
@@ -32,7 +25,7 @@ type LoginResponse struct {
 }
 
 type NewBid struct {
-	ProjectID int    `json:"project_id"`
+	ProjectID string `json:"project_id"`
 	Price     int    `json:"price"`
 	Comment   string `json:"comment"`
 }
@@ -45,8 +38,9 @@ type NewProject struct {
 }
 
 type Project struct {
-	ID          int     `json:"ID"`
-	CreatorID   int     `json:"creator_id"`
+	ID          string  `json:"ID"`
+	CreatorID   string  `json:"creator_id"`
+	Creator     *User   `json:"creator"`
 	Name        string  `json:"name"`
 	Desc        string  `json:"desc"`
 	Price       int     `json:"price"`
@@ -60,4 +54,15 @@ type Register struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type User struct {
+	ID        string  `json:"ID"`
+	Username  string  `json:"username"`
+	Email     string  `json:"email"`
+	Password  string  `json:"password"`
+	FirstName *string `json:"first_name"`
+	LastName  *string `json:"last_name"`
+	CreatedAt string  `json:"created_at"`
+	UpdatedAt string  `json:"updated_at"`
 }

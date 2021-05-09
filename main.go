@@ -1,20 +1,21 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/azzzub/jobless/auth"
-	config "github.com/azzzub/jobless/config"
-	"github.com/azzzub/jobless/gql"
+	"github.com/azzzub/jobless/config"
+	"github.com/azzzub/jobless/database"
+	"github.com/azzzub/jobless/database/mock"
 	"github.com/azzzub/jobless/graph"
 	"github.com/azzzub/jobless/graph/generated"
-	"github.com/azzzub/jobless/model"
-	"github.com/azzzub/jobless/project"
 	"github.com/azzzub/jobless/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/urfave/cli/v2"
 )
 
 // Defining the Graphql handler
@@ -44,7 +45,51 @@ func main() {
 	godotenv.Load()
 
 	db := config.DbConn()
-	db.AutoMigrate(&model.Auth{}, &model.Project{}, &model.Bid{})
+	cmdApp := cli.NewApp()
+
+	// CLI command for mocking
+	// Usage: go run main.go <COMMAND>
+	cmdApp.Commands = []*cli.Command{
+		{
+			Name: "migrate",
+			Action: func(c *cli.Context) error {
+				for _, dbList := range database.DBList() {
+					if err := db.Debug().AutoMigrate(dbList.Model); err != nil {
+						panic(err)
+					}
+				}
+				os.Exit(0)
+				return nil
+			},
+		},
+		{
+			Name: "first_mock",
+			Action: func(c *cli.Context) error {
+				if err := db.Debug().Create(mock.UserMock()).Error; err != nil {
+					panic(err)
+				}
+				os.Exit(0)
+				return nil
+			},
+		},
+		{
+			Name: "mock",
+			Action: func(c *cli.Context) error {
+				for _, mock := range database.NewMock() {
+					if err := db.Debug().Create(mock.Mock).Error; err != nil {
+						panic(err)
+					}
+				}
+				os.Exit(0)
+				return nil
+			},
+		},
+	}
+
+	err := cmdApp.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Creating the server
 	// Move to gin-gonic framework
@@ -60,29 +105,12 @@ func main() {
 				"message": "status ok",
 			})
 		})
-		// GraphQL
-		v1.GET("/gql", gql.GraphQL())
-		v1.POST("/gql", gql.GraphQL())
-
 	}
+
 	// GraphQL gqlgen
 	gqlRouter := router.Group("/_gql")
 	{
 		gqlRouter.POST("/query", graphqlHandler())
-	}
-
-	// Auth router V1
-	authRouterV1 := v1.Group("/auth")
-	{
-		authRouterV1.POST("/login", auth.LoginHandler)
-		authRouterV1.POST("/register", auth.RegisterHandler)
-	}
-
-	// Project router V1
-	projectRouterV1 := v1.Group("/project")
-	{
-		projectRouterV1.GET("/", project.ReadAllProject)
-		projectRouterV1.POST("/", project.CreateProject)
 	}
 
 	// Run on port 9000
