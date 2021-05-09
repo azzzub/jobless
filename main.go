@@ -51,6 +51,25 @@ func main() {
 	// Usage: go run main.go <COMMAND>
 	cmdApp.Commands = []*cli.Command{
 		{
+			Name: "drop_all_tables",
+			Action: func(c *cli.Context) error {
+				err := db.Exec("DROP TABLE IF EXISTS bids").Error
+				if err != nil {
+					panic(err)
+				}
+				err = db.Exec("DROP TABLE IF EXISTS projects").Error
+				if err != nil {
+					panic(err)
+				}
+				err = db.Exec("DROP TABLE IF EXISTS users").Error
+				if err != nil {
+					panic(err)
+				}
+				os.Exit(0)
+				return nil
+			},
+		},
+		{
 			Name: "migrate",
 			Action: func(c *cli.Context) error {
 				for _, dbList := range database.DBList() {
