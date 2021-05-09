@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"log"
 	"math/rand"
 	"time"
 
@@ -10,22 +9,28 @@ import (
 	"github.com/bxcodec/faker/v3"
 )
 
-func ProjectMock() *model.Project {
-	db := config.DbConn()
+func BidMock() *model.Bid {
 	var user model.User
+	db := config.DbConn()
 	err := db.First(&user).Error
 	if err != nil {
-		log.Fatal(err)
-		return &model.Project{}
+		return &model.Bid{}
 	}
 
-	return &model.Project{
-		CreatorID: user.ID,
-		Name:      faker.Name(),
-		Desc:      faker.Paragraph(),
+	var project model.Project
+
+	err = db.First(&project).Error
+	if err != nil {
+		return &model.Bid{}
+	}
+
+	return &model.Bid{
+		BidderID:  user.ID,
+		ProjectID: project.ID,
 		Price:     uint(rand.Int()),
-		Deadline:  time.Now().Add(time.Duration(time.Now().Day() + 1)),
+		Comment:   faker.Paragraph(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+
 }

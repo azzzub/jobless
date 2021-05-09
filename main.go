@@ -63,7 +63,7 @@ func main() {
 			},
 		},
 		{
-			Name: "first_mock",
+			Name: "user_mock",
 			Action: func(c *cli.Context) error {
 				if err := db.Debug().Create(mock.UserMock()).Error; err != nil {
 					panic(err)
@@ -73,12 +73,20 @@ func main() {
 			},
 		},
 		{
-			Name: "mock",
+			Name: "project_mock",
 			Action: func(c *cli.Context) error {
-				for _, mock := range database.NewMock() {
-					if err := db.Debug().Create(mock.Mock).Error; err != nil {
-						panic(err)
-					}
+				if err := db.Debug().Create(mock.ProjectMock()).Error; err != nil {
+					panic(err)
+				}
+				os.Exit(0)
+				return nil
+			},
+		},
+		{
+			Name: "bid_mock",
+			Action: func(c *cli.Context) error {
+				if err := db.Debug().Create(mock.BidMock()).Error; err != nil {
+					panic(err)
 				}
 				os.Exit(0)
 				return nil

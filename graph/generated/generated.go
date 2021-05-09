@@ -68,6 +68,7 @@ type ComplexityRoot struct {
 	}
 
 	Project struct {
+		Bids        func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		Creator     func(childComplexity int) int
 		CreatorID   func(childComplexity int) int
@@ -165,7 +166,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bid.Price(childComplexity), true
 
-	case "Bid.priceString":
+	case "Bid.price_string":
 		if e.complexity.Bid.PriceString == nil {
 			break
 		}
@@ -248,6 +249,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Register(childComplexity, args["input"].(model.Register)), true
 
+	case "Project.bids":
+		if e.complexity.Project.Bids == nil {
+			break
+		}
+
+		return e.complexity.Project.Bids(childComplexity), true
+
 	case "Project.created_at":
 		if e.complexity.Project.CreatedAt == nil {
 			break
@@ -304,7 +312,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Price(childComplexity), true
 
-	case "Project.priceString":
+	case "Project.price_string":
 		if e.complexity.Project.PriceString == nil {
 			break
 		}
@@ -457,7 +465,7 @@ var sources = []*ast.Source{
 # https://gqlgen.com/getting-started/
 
 type User {
-  ID: String!
+  ID: Int!
   username: String!
   email: String!
   password: String!
@@ -474,27 +482,27 @@ type LoginResponse {
 }
 
 type Project {
-  ID: String!
-  creator_id: String!
+  ID: Int!
+  creator_id: Int!
   creator: User
-  # bid: [Bid]
+  bids: [Bid]
   name: String!
   desc: String!
   price: Int!
-  priceString: String
+  price_string: String
   deadline: String!
   created_at: String!
   updated_at: String!
 }
 
 type Bid {
-  ID: String!
-  bidder_id: String!
+  ID: Int!
+  bidder_id: Int!
   bidder: User
-  project_id: String!
+  project_id: Int!
   project: Project
   price: Int!
-  priceString: String
+  price_string: String
   comment: String!
   created_at: String!
   updated_at: String!
@@ -524,7 +532,7 @@ input NewProject {
 }
 
 input NewBid {
-  project_id: String!
+  project_id: Int!
   price: Int!
   comment: String!
 }
@@ -686,9 +694,9 @@ func (ec *executionContext) _Bid_ID(ctx context.Context, field graphql.Collected
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Bid_bidder_id(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
@@ -721,9 +729,9 @@ func (ec *executionContext) _Bid_bidder_id(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Bid_bidder(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
@@ -788,9 +796,9 @@ func (ec *executionContext) _Bid_project_id(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Bid_project(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
@@ -860,7 +868,7 @@ func (ec *executionContext) _Bid_price(ctx context.Context, field graphql.Collec
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Bid_priceString(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
+func (ec *executionContext) _Bid_price_string(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1230,9 +1238,9 @@ func (ec *executionContext) _Project_ID(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Project_creator_id(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
@@ -1265,9 +1273,9 @@ func (ec *executionContext) _Project_creator_id(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Project_creator(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
@@ -1300,6 +1308,38 @@ func (ec *executionContext) _Project_creator(ctx context.Context, field graphql.
 	res := resTmp.(*model.User)
 	fc.Result = res
 	return ec.marshalOUser2ᚖgithubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Project_bids(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Project",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Bids, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Bid)
+	fc.Result = res
+	return ec.marshalOBid2ᚕᚖgithubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐBid(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Project_name(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
@@ -1407,7 +1447,7 @@ func (ec *executionContext) _Project_price(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Project_priceString(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
+func (ec *executionContext) _Project_price_string(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1715,9 +1755,9 @@ func (ec *executionContext) _User_ID(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -3084,7 +3124,7 @@ func (ec *executionContext) unmarshalInputNewBid(ctx context.Context, obj interf
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project_id"))
-			it.ProjectID, err = ec.unmarshalNString2string(ctx, v)
+			it.ProjectID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3233,8 +3273,8 @@ func (ec *executionContext) _Bid(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "priceString":
-			out.Values[i] = ec._Bid_priceString(ctx, field, obj)
+		case "price_string":
+			out.Values[i] = ec._Bid_price_string(ctx, field, obj)
 		case "comment":
 			out.Values[i] = ec._Bid_comment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3357,6 +3397,8 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "creator":
 			out.Values[i] = ec._Project_creator(ctx, field, obj)
+		case "bids":
+			out.Values[i] = ec._Project_bids(ctx, field, obj)
 		case "name":
 			out.Values[i] = ec._Project_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3372,8 +3414,8 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "priceString":
-			out.Values[i] = ec._Project_priceString(ctx, field, obj)
+		case "price_string":
+			out.Values[i] = ec._Project_price_string(ctx, field, obj)
 		case "deadline":
 			out.Values[i] = ec._Project_deadline(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4181,6 +4223,53 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOBid2ᚕᚖgithubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐBid(ctx context.Context, sel ast.SelectionSet, v []*model.Bid) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOBid2ᚖgithubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐBid(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOBid2ᚖgithubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐBid(ctx context.Context, sel ast.SelectionSet, v *model.Bid) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Bid(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

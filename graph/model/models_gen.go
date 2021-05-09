@@ -3,13 +3,13 @@
 package model
 
 type Bid struct {
-	ID          string   `json:"ID"`
-	BidderID    string   `json:"bidder_id"`
+	ID          int      `json:"ID"`
+	BidderID    int      `json:"bidder_id"`
 	Bidder      *User    `json:"bidder"`
-	ProjectID   string   `json:"project_id"`
+	ProjectID   int      `json:"project_id"`
 	Project     *Project `json:"project"`
 	Price       int      `json:"price"`
-	PriceString *string  `json:"priceString"`
+	PriceString *string  `json:"price_string"`
 	Comment     string   `json:"comment"`
 	CreatedAt   string   `json:"created_at"`
 	UpdatedAt   string   `json:"updated_at"`
@@ -25,7 +25,7 @@ type LoginResponse struct {
 }
 
 type NewBid struct {
-	ProjectID string `json:"project_id"`
+	ProjectID int    `json:"project_id"`
 	Price     int    `json:"price"`
 	Comment   string `json:"comment"`
 }
@@ -38,13 +38,14 @@ type NewProject struct {
 }
 
 type Project struct {
-	ID          string  `json:"ID"`
-	CreatorID   string  `json:"creator_id"`
+	ID          int     `json:"ID"`
+	CreatorID   int     `json:"creator_id"`
 	Creator     *User   `json:"creator"`
+	Bids        []*Bid  `json:"bids"`
 	Name        string  `json:"name"`
 	Desc        string  `json:"desc"`
 	Price       int     `json:"price"`
-	PriceString *string `json:"priceString"`
+	PriceString *string `json:"price_string"`
 	Deadline    string  `json:"deadline"`
 	CreatedAt   string  `json:"created_at"`
 	UpdatedAt   string  `json:"updated_at"`
@@ -57,7 +58,7 @@ type Register struct {
 }
 
 type User struct {
-	ID        string  `json:"ID"`
+	ID        int     `json:"ID"`
 	Username  string  `json:"username"`
 	Email     string  `json:"email"`
 	Password  string  `json:"password"`

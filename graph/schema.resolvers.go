@@ -15,7 +15,6 @@ import (
 	rawModel "github.com/azzzub/jobless/model"
 	"github.com/azzzub/jobless/utils"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,7 +25,6 @@ func (r *mutationResolver) Register(ctx context.Context, input model.Register) (
 	}
 
 	user := &model.User{
-		ID:        uuid.New().String(),
 		Username:  input.Username,
 		Email:     input.Email,
 		Password:  string(hashedPassword),
@@ -36,7 +34,7 @@ func (r *mutationResolver) Register(ctx context.Context, input model.Register) (
 
 	db := db.DbConn()
 
-	result := db.Select("ID", "Username", "Email", "Password", "CreatedAt", "UpdatedAt").
+	result := db.Select("Username", "Email", "Password", "CreatedAt", "UpdatedAt").
 		Create(&user)
 	if result.Error != nil {
 		return nil, result.Error
@@ -63,7 +61,6 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Login) (*model
 	}
 
 	claims := &rawModel.Token{
-		ID: user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 2).Unix(),
 		},
@@ -89,8 +86,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	}
 
 	project := &model.Project{
-		ID:        uuid.NewString(),
-		CreatorID: token.ID,
+		CreatorID: int(token.ID),
 		Name:      input.Name,
 		Desc:      input.Desc,
 		Price:     input.Price,
@@ -100,7 +96,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	}
 
 	db := db.DbConn()
-	result := db.Select("ID", "CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
+	result := db.Select("CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
 		Create(&project)
 	if result.Error != nil {
 		return nil, result.Error
@@ -121,7 +117,7 @@ func (r *mutationResolver) CreateBid(ctx context.Context, input model.NewBid) (*
 	}
 
 	bid := &model.Bid{
-		BidderID:  token.ID,
+		BidderID:  int(token.ID),
 		ProjectID: input.ProjectID,
 		Price:     input.Price,
 		Comment:   input.Comment,
@@ -144,7 +140,7 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 	var projects []*model.Project
 
 	db := db.DbConn()
-	result := db.Preload("Creator").Find(&projects)
+	result := db.Debug().Preload("Creator").Preload("Bids").Preload("Bids.Bidder").Find(&projects)
 	if result.Error != nil {
 		return nil, result.Error
 	}

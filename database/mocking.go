@@ -13,5 +13,8 @@ func NewMock() []Mocks {
 		{
 			Mock: mock.ProjectMock(),
 		},
+		{
+			Mock: mock.BidMock(),
+		},
 	}
 }

@@ -3,7 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 type User {
-  ID: String!
+  ID: Int!
   username: String!
   email: String!
   password: String!
@@ -20,27 +20,27 @@ type LoginResponse {
 }
 
 type Project {
-  ID: String!
-  creator_id: String!
+  ID: Int!
+  creator_id: Int!
   creator: User
-  # bid: [Bid]
+  bids: [Bid]
   name: String!
   desc: String!
   price: Int!
-  priceString: String
+  price_string: String
   deadline: String!
   created_at: String!
   updated_at: String!
 }
 
 type Bid {
-  ID: String!
-  bidder_id: String!
+  ID: Int!
+  bidder_id: Int!
   bidder: User
-  project_id: String!
+  project_id: Int!
   project: Project
   price: Int!
-  priceString: String
+  price_string: String
   comment: String!
   created_at: String!
   updated_at: String!
@@ -70,7 +70,7 @@ input NewProject {
 }
 
 input NewBid {
-  project_id: String!
+  project_id: Int!
   price: Int!
   comment: String!
 }
