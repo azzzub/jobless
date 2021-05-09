@@ -3,16 +3,15 @@
 package model
 
 type Bid struct {
-	ID          int      `json:"ID"`
-	BidderID    int      `json:"bidder_id"`
-	Bidder      *User    `json:"bidder"`
-	ProjectID   int      `json:"project_id"`
-	Project     *Project `json:"project"`
-	Price       int      `json:"price"`
-	PriceString *string  `json:"price_string"`
-	Comment     string   `json:"comment"`
-	CreatedAt   string   `json:"created_at"`
-	UpdatedAt   string   `json:"updated_at"`
+	ID        int      `json:"ID"`
+	BidderID  int      `json:"bidder_id"`
+	Bidder    *User    `json:"bidder"`
+	ProjectID int      `json:"project_id"`
+	Project   *Project `json:"project"`
+	Price     int      `json:"price"`
+	Comment   string   `json:"comment"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
 }
 
 type Login struct {
@@ -38,17 +37,16 @@ type NewProject struct {
 }
 
 type Project struct {
-	ID          int     `json:"ID"`
-	CreatorID   int     `json:"creator_id"`
-	Creator     *User   `json:"creator"`
-	Bids        []*Bid  `json:"bids"`
-	Name        string  `json:"name"`
-	Desc        string  `json:"desc"`
-	Price       int     `json:"price"`
-	PriceString *string `json:"price_string"`
-	Deadline    string  `json:"deadline"`
-	CreatedAt   string  `json:"created_at"`
-	UpdatedAt   string  `json:"updated_at"`
+	ID        int    `json:"ID"`
+	CreatorID int    `json:"creator_id"`
+	Creator   *User  `json:"creator"`
+	Bids      []*Bid `json:"bids"`
+	Name      string `json:"name"`
+	Desc      string `json:"desc"`
+	Price     int    `json:"price"`
+	Deadline  string `json:"deadline"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 type Register struct {

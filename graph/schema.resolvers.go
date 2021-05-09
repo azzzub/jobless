@@ -61,6 +61,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Login) (*model
 	}
 
 	claims := &rawModel.Token{
+		ID: uint(user.ID),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 2).Unix(),
 		},
@@ -145,11 +146,6 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 		return nil, result.Error
 	}
 
-	for _, project := range projects {
-		priceString := utils.ReadablePrice(project.Price)
-		project.PriceString = &priceString
-	}
-
 	return projects, nil
 }
 
@@ -160,11 +156,6 @@ func (r *queryResolver) Bids(ctx context.Context) ([]*model.Bid, error) {
 	result := db.Find(&bids)
 	if result.Error != nil {
 		return nil, result.Error
-	}
-
-	for _, bid := range bids {
-		priceString := utils.ReadablePrice(bid.Price)
-		bid.PriceString = &priceString
 	}
 
 	return bids, nil

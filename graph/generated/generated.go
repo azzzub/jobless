@@ -44,16 +44,15 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Bid struct {
-		Bidder      func(childComplexity int) int
-		BidderID    func(childComplexity int) int
-		Comment     func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Price       func(childComplexity int) int
-		PriceString func(childComplexity int) int
-		Project     func(childComplexity int) int
-		ProjectID   func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		Bidder    func(childComplexity int) int
+		BidderID  func(childComplexity int) int
+		Comment   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Price     func(childComplexity int) int
+		Project   func(childComplexity int) int
+		ProjectID func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
 	}
 
 	LoginResponse struct {
@@ -68,17 +67,16 @@ type ComplexityRoot struct {
 	}
 
 	Project struct {
-		Bids        func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
-		Creator     func(childComplexity int) int
-		CreatorID   func(childComplexity int) int
-		Deadline    func(childComplexity int) int
-		Desc        func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Price       func(childComplexity int) int
-		PriceString func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		Bids      func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		Creator   func(childComplexity int) int
+		CreatorID func(childComplexity int) int
+		Deadline  func(childComplexity int) int
+		Desc      func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Price     func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
 	}
 
 	Query struct {
@@ -165,13 +163,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bid.Price(childComplexity), true
-
-	case "Bid.price_string":
-		if e.complexity.Bid.PriceString == nil {
-			break
-		}
-
-		return e.complexity.Bid.PriceString(childComplexity), true
 
 	case "Bid.project":
 		if e.complexity.Bid.Project == nil {
@@ -311,13 +302,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Project.Price(childComplexity), true
-
-	case "Project.price_string":
-		if e.complexity.Project.PriceString == nil {
-			break
-		}
-
-		return e.complexity.Project.PriceString(childComplexity), true
 
 	case "Project.updated_at":
 		if e.complexity.Project.UpdatedAt == nil {
@@ -489,7 +473,6 @@ type Project {
   name: String!
   desc: String!
   price: Int!
-  price_string: String
   deadline: String!
   created_at: String!
   updated_at: String!
@@ -502,7 +485,6 @@ type Bid {
   project_id: Int!
   project: Project
   price: Int!
-  price_string: String
   comment: String!
   created_at: String!
   updated_at: String!
@@ -866,38 +848,6 @@ func (ec *executionContext) _Bid_price(ctx context.Context, field graphql.Collec
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Bid_price_string(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Bid",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PriceString, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Bid_comment(ctx context.Context, field graphql.CollectedField, obj *model.Bid) (ret graphql.Marshaler) {
@@ -1445,38 +1395,6 @@ func (ec *executionContext) _Project_price(ctx context.Context, field graphql.Co
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Project_price_string(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Project",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PriceString, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Project_deadline(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
@@ -3273,8 +3191,6 @@ func (ec *executionContext) _Bid(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "price_string":
-			out.Values[i] = ec._Bid_price_string(ctx, field, obj)
 		case "comment":
 			out.Values[i] = ec._Bid_comment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3414,8 +3330,6 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "price_string":
-			out.Values[i] = ec._Project_price_string(ctx, field, obj)
 		case "deadline":
 			out.Values[i] = ec._Project_deadline(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

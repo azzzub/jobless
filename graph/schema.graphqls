@@ -27,7 +27,6 @@ type Project {
   name: String!
   desc: String!
   price: Int!
-  price_string: String
   deadline: String!
   created_at: String!
   updated_at: String!
@@ -40,7 +39,6 @@ type Bid {
   project_id: Int!
   project: Project
   price: Int!
-  price_string: String
   comment: String!
   created_at: String!
   updated_at: String!
