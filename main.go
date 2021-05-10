@@ -121,6 +121,7 @@ func main() {
 	// Creating the server
 	// Move to gin-gonic framework
 	router := gin.Default()
+	router.Use(utils.CORSMiddleware())
 	router.Use(utils.GinContextToContextMiddleware())
 	router.GET("/_gql", playgroundHandler())
 
