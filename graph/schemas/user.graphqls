@@ -17,6 +17,14 @@ input Register {
   password: String!
 }
 
+input EmailVerification {
+  token: String!
+}
+
+type EmailVerificationResponse {
+  message: String!
+}
+
 input Login {
   uoe: String!
   password: String!

@@ -8,8 +8,8 @@ import (
 
 type User struct {
 	ID              uint           `json:"id" gorm:"primaryKey"`
-	Username        string         `json:"username"`
-	Email           string         `json:"email"`
+	Username        string         `json:"username" gorm:"unique"`
+	Email           string         `json:"email" gorm:"unique"`
 	IsEmailVerified bool           `json:"is_email_verified" gorm:"default:false"`
 	IsUserVerified  bool           `json:"is_user_verified" gorm:"default:false"`
 	Password        string         `json:"password"`

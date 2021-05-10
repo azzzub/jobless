@@ -9,6 +9,7 @@ type Query {
 
 type Mutation {
   register(input: Register!): User!
+  emailVerification(input: EmailVerification!): EmailVerificationResponse!
   login(input: Login!): LoginResponse!
   createProject(input: NewProject!): Project!
   createBid(input: NewBid!): Bid!

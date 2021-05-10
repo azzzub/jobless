@@ -5,7 +5,8 @@ import (
 )
 
 type Token struct {
-	ID uint `json:"id"`
+	ID    uint   `json:"id"`
+	Email string `json:"email"`
 	jwt.StandardClaims
 }
 

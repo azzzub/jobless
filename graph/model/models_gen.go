@@ -14,6 +14,14 @@ type Bid struct {
 	UpdatedAt string   `json:"updated_at"`
 }
 
+type EmailVerification struct {
+	Token string `json:"token"`
+}
+
+type EmailVerificationResponse struct {
+	Message string `json:"message"`
+}
+
 type Login struct {
 	Uoe      string `json:"uoe"`
 	Password string `json:"password"`
