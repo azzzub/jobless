@@ -8,6 +8,7 @@ import (
 	"github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/model"
 	"github.com/bxcodec/faker/v3"
+	"github.com/gosimple/slug"
 )
 
 func ProjectMock() *model.Project {
@@ -19,9 +20,12 @@ func ProjectMock() *model.Project {
 		return &model.Project{}
 	}
 
+	name := faker.Name()
+
 	return &model.Project{
 		CreatorID: user.ID,
-		Name:      faker.Name(),
+		Slug:      slug.Make(name),
+		Name:      name,
 		Desc:      faker.Paragraph(),
 		Price:     uint(rand.Int()),
 		Deadline:  time.Now().Add(time.Duration(time.Now().Day() + 1)),

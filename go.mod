@@ -11,6 +11,7 @@ require (
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/validator/v10 v10.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/gosimple/slug v1.9.0
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect

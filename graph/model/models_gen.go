@@ -46,6 +46,7 @@ type NewProject struct {
 
 type Project struct {
 	ID        int    `json:"ID"`
+	Slug      string `json:"slug"`
 	CreatorID int    `json:"creator_id"`
 	Creator   *User  `json:"creator"`
 	Bids      []*Bid `json:"bids"`

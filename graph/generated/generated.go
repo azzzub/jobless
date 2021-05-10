@@ -81,6 +81,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Price     func(childComplexity int) int
+		Slug      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 	}
 
@@ -330,6 +331,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Price(childComplexity), true
 
+	case "Project.slug":
+		if e.complexity.Project.Slug == nil {
+			break
+		}
+
+		return e.complexity.Project.Slug(childComplexity), true
+
 	case "Project.updated_at":
 		if e.complexity.Project.UpdatedAt == nil {
 			break
@@ -504,6 +512,7 @@ input NewBid {
 }`, BuiltIn: false},
 	{Name: "graph/schemas/project.graphqls", Input: `type Project {
   ID: Int!
+  slug: String!
   creator_id: Int!
   creator: User
   bids: [Bid]
@@ -1330,6 +1339,41 @@ func (ec *executionContext) _Project_ID(ctx context.Context, field graphql.Colle
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Project_slug(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Project",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Slug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Project_creator_id(ctx context.Context, field graphql.CollectedField, obj *model.Project) (ret graphql.Marshaler) {
@@ -3564,6 +3608,11 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = graphql.MarshalString("Project")
 		case "ID":
 			out.Values[i] = ec._Project_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "slug":
+			out.Values[i] = ec._Project_slug(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

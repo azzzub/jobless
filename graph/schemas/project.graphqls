@@ -1,5 +1,6 @@
 type Project {
   ID: Int!
+  slug: String!
   creator_id: Int!
   creator: User
   bids: [Bid]

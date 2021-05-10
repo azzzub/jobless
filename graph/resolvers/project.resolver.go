@@ -3,11 +3,13 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/graph/model"
 	"github.com/azzzub/jobless/utils"
+	"github.com/gosimple/slug"
 )
 
 func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewProject) (*model.Project, error) {
@@ -38,7 +40,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	aMonthInterval := lastProjectCreatedDate.AddDate(0, -1, 0)
 
 	var aMonthIntervalData []model.Project
-	err = db.Where("created_at >= ? AND created_at <= ?", aMonthInterval, lastProjectCreatedDate).
+	err = db.Debug().Where("created_at >= ? AND created_at <= ? AND creator_id = ?", aMonthInterval, lastProjectCreatedDate, token.ID).
 		Order("ID ASC").
 		Find(&aMonthIntervalData).Error
 	if err != nil {
@@ -58,7 +60,20 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 	}
 	// End of counter project checking
 
+	// Checking slug whether is registered
+	var _slug string = slug.Make(input.Name)
+	checkSlug := []model.Project{}
+
+	err = db.Debug().Where("slug = ?", _slug).Find(&checkSlug).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(checkSlug) != 0 {
+		_slug = slug.Make(input.Name) + "-" + strconv.Itoa(int(time.Now().Unix()))
+	}
+
 	project := &model.Project{
+		Slug:      _slug,
 		CreatorID: int(token.ID),
 		Name:      input.Name,
 		Desc:      input.Desc,
@@ -68,7 +83,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
 
-	result := db.Select("CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
+	result := db.Select("Slug", "CreatorID", "Name", "Desc", "Price", "Deadline", "CreatedAt", "UpdatedAt").
 		Create(&project)
 	if result.Error != nil {
 		return nil, result.Error

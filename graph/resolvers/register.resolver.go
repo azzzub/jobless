@@ -33,10 +33,11 @@ func (r *mutationResolver) Register(ctx context.Context, input model.Register) (
 		return nil, result.Error
 	}
 
-	err = utils.SendMail(user.Email, "Email Confirmation", "Email confirmation")
-	if err != nil {
-		return nil, err
-	}
+	// Email verification
+	// err = utils.SendMail(user.Email, "Email Confirmation", "Email confirmation")
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return user, nil
 }
