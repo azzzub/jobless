@@ -10,8 +10,8 @@ import (
 	"github.com/azzzub/jobless/config"
 	"github.com/azzzub/jobless/database"
 	"github.com/azzzub/jobless/database/mock"
-	"github.com/azzzub/jobless/graph"
 	"github.com/azzzub/jobless/graph/generated"
+	"github.com/azzzub/jobless/graph/resolvers"
 	"github.com/azzzub/jobless/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -24,7 +24,7 @@ func graphqlHandler() gin.HandlerFunc {
 	// Resolver is in the resolver.go file
 	// h := handler.NewDefaultServer()
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(
-		generated.Config{Resolvers: &graph.Resolver{}}),
+		generated.Config{Resolvers: &resolvers.Resolver{}}),
 	)
 
 	return func(c *gin.Context) {

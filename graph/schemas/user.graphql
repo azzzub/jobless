@@ -1,0 +1,27 @@
+type User {
+  ID: Int!
+  username: String!
+  email: String!
+  is_email_verified: Boolean!
+  is_user_verified: Boolean!
+  password: String!
+  first_name: String
+  last_name: String
+  created_at: String!
+  updated_at: String!
+}
+
+input Register {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input Login {
+  uoe: String!
+  password: String!
+}
+
+type LoginResponse {
+  token: String!
+}

@@ -56,12 +56,14 @@ type Register struct {
 }
 
 type User struct {
-	ID        int     `json:"ID"`
-	Username  string  `json:"username"`
-	Email     string  `json:"email"`
-	Password  string  `json:"password"`
-	FirstName *string `json:"first_name"`
-	LastName  *string `json:"last_name"`
-	CreatedAt string  `json:"created_at"`
-	UpdatedAt string  `json:"updated_at"`
+	ID              int     `json:"ID"`
+	Username        string  `json:"username"`
+	Email           string  `json:"email"`
+	IsEmailVerified bool    `json:"is_email_verified"`
+	IsUserVerified  bool    `json:"is_user_verified"`
+	Password        string  `json:"password"`
+	FirstName       *string `json:"first_name"`
+	LastName        *string `json:"last_name"`
+	CreatedAt       string  `json:"created_at"`
+	UpdatedAt       string  `json:"updated_at"`
 }

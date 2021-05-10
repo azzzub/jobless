@@ -1,0 +1,15 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Query {
+  projects: [Project!]!
+  bids: [Bid!]!
+}
+
+type Mutation {
+  register(input: Register!): User!
+  login(input: Login!): LoginResponse!
+  createProject(input: NewProject!): Project!
+  createBid(input: NewBid!): Bid!
+}

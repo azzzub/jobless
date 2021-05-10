@@ -1,0 +1,19 @@
+type Project {
+  ID: Int!
+  creator_id: Int!
+  creator: User
+  bids: [Bid]
+  name: String!
+  desc: String!
+  price: Int!
+  deadline: String!
+  created_at: String!
+  updated_at: String!
+}
+
+input NewProject {
+  name: String!
+  desc: String!
+  price: Int!
+  deadline: String!
+}

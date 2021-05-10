@@ -85,14 +85,16 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		CreatedAt func(childComplexity int) int
-		Email     func(childComplexity int) int
-		FirstName func(childComplexity int) int
-		ID        func(childComplexity int) int
-		LastName  func(childComplexity int) int
-		Password  func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		Username  func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Email           func(childComplexity int) int
+		FirstName       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		IsEmailVerified func(childComplexity int) int
+		IsUserVerified  func(childComplexity int) int
+		LastName        func(childComplexity int) int
+		Password        func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
+		Username        func(childComplexity int) int
 	}
 }
 
@@ -352,6 +354,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ID(childComplexity), true
 
+	case "User.is_email_verified":
+		if e.complexity.User.IsEmailVerified == nil {
+			break
+		}
+
+		return e.complexity.User.IsEmailVerified(childComplexity), true
+
+	case "User.is_user_verified":
+		if e.complexity.User.IsUserVerified == nil {
+			break
+		}
+
+		return e.complexity.User.IsUserVerified(childComplexity), true
+
 	case "User.last_name":
 		if e.complexity.User.LastName == nil {
 			break
@@ -444,28 +460,24 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type User {
+	{Name: "graph/schemas/bid.graphql", Input: `type Bid {
   ID: Int!
-  username: String!
-  email: String!
-  password: String!
-  first_name: String
-  last_name: String
-  # project: [Project]
-  # bid: [Bid]
+  bidder_id: Int!
+  bidder: User
+  project_id: Int!
+  project: Project
+  price: Int!
+  comment: String!
   created_at: String!
   updated_at: String!
 }
 
-type LoginResponse {
-  token: String!
-}
-
-type Project {
+input NewBid {
+  project_id: Int!
+  price: Int!
+  comment: String!
+}`, BuiltIn: false},
+	{Name: "graph/schemas/project.graphql", Input: `type Project {
   ID: Int!
   creator_id: Int!
   creator: User
@@ -478,21 +490,39 @@ type Project {
   updated_at: String!
 }
 
-type Bid {
-  ID: Int!
-  bidder_id: Int!
-  bidder: User
-  project_id: Int!
-  project: Project
+input NewProject {
+  name: String!
+  desc: String!
   price: Int!
-  comment: String!
-  created_at: String!
-  updated_at: String!
-}
+  deadline: String!
+}`, BuiltIn: false},
+	{Name: "graph/schemas/schema.graphql", Input: `# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
 
 type Query {
   projects: [Project!]!
   bids: [Bid!]!
+}
+
+type Mutation {
+  register(input: Register!): User!
+  login(input: Login!): LoginResponse!
+  createProject(input: NewProject!): Project!
+  createBid(input: NewBid!): Bid!
+}
+`, BuiltIn: false},
+	{Name: "graph/schemas/user.graphql", Input: `type User {
+  ID: Int!
+  username: String!
+  email: String!
+  is_email_verified: Boolean!
+  is_user_verified: Boolean!
+  password: String!
+  first_name: String
+  last_name: String
+  created_at: String!
+  updated_at: String!
 }
 
 input Register {
@@ -506,26 +536,9 @@ input Login {
   password: String!
 }
 
-input NewProject {
-  name: String!
-  desc: String!
-  price: Int!
-  deadline: String!
-}
-
-input NewBid {
-  project_id: Int!
-  price: Int!
-  comment: String!
-}
-
-type Mutation {
-  register(input: Register!): User!
-  login(input: Login!): LoginResponse!
-  createProject(input: NewProject!): Project!
-  createBid(input: NewBid!): Bid!
-}
-`, BuiltIn: false},
+type LoginResponse {
+  token: String!
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1746,6 +1759,76 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_is_email_verified(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsEmailVerified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_is_user_verified(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsUserVerified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_password(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -3437,6 +3520,16 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "email":
 			out.Values[i] = ec._User_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "is_email_verified":
+			out.Values[i] = ec._User_is_email_verified(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "is_user_verified":
+			out.Values[i] = ec._User_is_user_verified(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

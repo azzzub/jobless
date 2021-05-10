@@ -1,0 +1,17 @@
+type Bid {
+  ID: Int!
+  bidder_id: Int!
+  bidder: User
+  project_id: Int!
+  project: Project
+  price: Int!
+  comment: String!
+  created_at: String!
+  updated_at: String!
+}
+
+input NewBid {
+  project_id: Int!
+  price: Int!
+  comment: String!
+}
