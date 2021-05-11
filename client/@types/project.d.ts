@@ -16,3 +16,7 @@ interface Project {
 interface Projects {
   projects: Project[]
 }
+
+interface SingleProject {
+  project: Project
+}
