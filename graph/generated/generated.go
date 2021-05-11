@@ -576,6 +576,8 @@ type Mutation {
 }
 
 input Register {
+  first_name: String!
+  last_name: String!
   username: String!
   email: String!
   password: String!
@@ -3463,6 +3465,22 @@ func (ec *executionContext) unmarshalInputRegister(ctx context.Context, obj inte
 
 	for k, v := range asMap {
 		switch k {
+		case "first_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first_name"))
+			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "last_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last_name"))
+			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "username":
 			var err error
 

@@ -1,5 +1,7 @@
 import { useQuery, gql } from '@apollo/client'
 import Link from 'next/link'
+import Login from '../components/login'
+import Register from '../components/register'
 
 const GET_PROJECTS = gql`
   query {
@@ -26,6 +28,8 @@ const App: React.FC = () => {
 
   return (
     <div>
+      <Login />
+      <Register />
       <div>
         {data?.projects.map((element, i) => {
           return (

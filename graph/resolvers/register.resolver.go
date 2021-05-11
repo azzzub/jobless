@@ -18,6 +18,8 @@ func (r *mutationResolver) Register(ctx context.Context, input model.Register) (
 	}
 
 	user := &model.User{
+		FirstName: &input.FirstName,
+		LastName:  &input.LastName,
 		Username:  input.Username,
 		Email:     input.Email,
 		Password:  string(hashedPassword),
