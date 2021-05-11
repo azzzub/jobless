@@ -103,3 +103,15 @@ func (r *queryResolver) Projects(ctx context.Context) ([]*model.Project, error) 
 
 	return projects, nil
 }
+
+func (r *queryResolver) Project(ctx context.Context, slug string) (*model.Project, error) {
+	var project *model.Project
+
+	db := config.DbConn()
+	result := db.Debug().Where("slug = ?", slug).Preload("Creator").Preload("Bids").Preload("Bids.Bidder").First(&project)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return project, nil
+}

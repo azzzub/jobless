@@ -4,6 +4,7 @@
 
 type Query {
   projects: [Project!]!
+  project(slug: String!): Project! 
   bids: [Bid!]!
 }
 
