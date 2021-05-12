@@ -59,11 +59,11 @@ type Project struct {
 }
 
 type Register struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	FirstName *string `json:"first_name"`
+	LastName  *string `json:"last_name"`
+	Username  string  `json:"username"`
+	Email     string  `json:"email"`
+	Password  string  `json:"password"`
 }
 
 type User struct {
@@ -75,6 +75,8 @@ type User struct {
 	Password        string  `json:"password"`
 	FirstName       *string `json:"first_name"`
 	LastName        *string `json:"last_name"`
+	Provider        string  `json:"provider"`
+	Avatar          *string `json:"avatar"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }

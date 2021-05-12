@@ -15,6 +15,7 @@ func UserMock() *model.User {
 		Password:  "$2y$10$aaCw9WsT2aTR/9QE/SvpX./hol9R3BmA9Fh0Cl8o0rAuhiOhTaFJi",
 		FirstName: faker.FirstName(),
 		LastName:  faker.LastName(),
+		Provider:  "platform",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

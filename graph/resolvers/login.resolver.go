@@ -31,7 +31,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Login) (*model
 	}
 
 	claims := &rawModel.Token{
-		ID: uint(user.ID),
+		ID:    uint(user.ID),
+		Email: user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 2).Unix(),
 		},
