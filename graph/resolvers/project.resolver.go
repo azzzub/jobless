@@ -47,16 +47,18 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input model.NewPro
 		return nil, err
 	}
 
-	nextMonth, err := time.Parse(time.RFC3339, aMonthIntervalData[0].CreatedAt)
-	if err != nil {
-		return nil, err
-	}
+	if len(aMonthIntervalData) > 0 {
+		nextMonth, err := time.Parse(time.RFC3339, aMonthIntervalData[0].CreatedAt)
+		if err != nil {
+			return nil, err
+		}
 
-	if len(aMonthIntervalData) >= 4 {
-		return nil, fmt.Errorf(
-			"you are already created 4 projects within a month, kindly please wait until %v to create a new project",
-			nextMonth.AddDate(0, 1, 0),
-		)
+		if len(aMonthIntervalData) >= 4 {
+			return nil, fmt.Errorf(
+				"you are already created 4 projects within a month, kindly please wait until %v to create a new project",
+				nextMonth.AddDate(0, 1, 0),
+			)
+		}
 	}
 	// End of counter project checking
 

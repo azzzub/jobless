@@ -67,6 +67,10 @@ type Register struct {
 	Password  string  `json:"password"`
 }
 
+type TokenVerification struct {
+	Token string `json:"token"`
+}
+
 type User struct {
 	ID              int     `json:"ID"`
 	Username        string  `json:"username"`

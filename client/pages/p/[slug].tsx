@@ -35,7 +35,7 @@ const ProjectDetails: React.FC = () => {
   const router = useRouter()
   const [isBidClicked, setIsBidClicked] = useState(false)
   const { slug } = router.query
-  const { loading, data, error } = useQuery<SingleProject>(GET_PROJECT_ON_SLUG, {
+  const { loading, data, error, refetch } = useQuery<SingleProject>(GET_PROJECT_ON_SLUG, {
     variables: {
       slug,
     },
@@ -64,7 +64,10 @@ const ProjectDetails: React.FC = () => {
       })}
       <button onClick={() => setIsBidClicked(true)}>Bid</button>
       {isBidClicked ? (
-        <Bidding project_id={data?.project.ID == undefined ? 0 : data.project.ID} />
+        <Bidding
+          project_id={data?.project.ID == undefined ? 0 : data.project.ID}
+          callback={() => refetch()}
+        />
       ) : null}
       <Link href="/">
         <button>Back</button>

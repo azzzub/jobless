@@ -29,6 +29,10 @@ type EmailVerificationResponse {
   message: String!
 }
 
+input TokenVerification {
+  token: String!
+}
+
 input Login {
   uoe: String!
   password: String!

@@ -1,5 +1,6 @@
 import { useQuery, gql } from '@apollo/client'
 import Link from 'next/link'
+import CreateProject from '../components/createProject'
 import Login from '../components/login'
 import Register from '../components/register'
 
@@ -21,7 +22,7 @@ const GET_PROJECTS = gql`
 `
 
 const App: React.FC = () => {
-  const { loading, data, error } = useQuery<Projects>(GET_PROJECTS)
+  const { loading, data, error, refetch } = useQuery<Projects>(GET_PROJECTS)
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error</div>
@@ -45,6 +46,7 @@ const App: React.FC = () => {
             </div>
           )
         })}
+        <CreateProject callback={() => refetch()} />
       </div>
     </div>
   )

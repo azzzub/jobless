@@ -62,6 +62,7 @@ const Login: React.FC = () => {
         </button>
         {error ? <div>{error.message}</div> : null}
       </form>
+      <a href="http://localhost:9000/v1/auth/google">Login with google</a>
     </div>
   )
 }

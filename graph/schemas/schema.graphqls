@@ -12,6 +12,7 @@ type Mutation {
   register(input: Register!): User!
   emailVerification(input: EmailVerification!): EmailVerificationResponse!
   login(input: Login!): LoginResponse!
+  tokenVerification(input: TokenVerification!): LoginResponse!
   createProject(input: NewProject!): Project!
   createBid(input: NewBid!): Bid!
 }

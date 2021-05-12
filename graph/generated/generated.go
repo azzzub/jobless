@@ -70,6 +70,7 @@ type ComplexityRoot struct {
 		EmailVerification func(childComplexity int, input model.EmailVerification) int
 		Login             func(childComplexity int, input model.Login) int
 		Register          func(childComplexity int, input model.Register) int
+		TokenVerification func(childComplexity int, input model.TokenVerification) int
 	}
 
 	Project struct {
@@ -112,6 +113,7 @@ type MutationResolver interface {
 	Register(ctx context.Context, input model.Register) (*model.User, error)
 	EmailVerification(ctx context.Context, input model.EmailVerification) (*model.EmailVerificationResponse, error)
 	Login(ctx context.Context, input model.Login) (*model.LoginResponse, error)
+	TokenVerification(ctx context.Context, input model.TokenVerification) (*model.LoginResponse, error)
 	CreateProject(ctx context.Context, input model.NewProject) (*model.Project, error)
 	CreateBid(ctx context.Context, input model.NewBid) (*model.Bid, error)
 }
@@ -279,6 +281,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Register(childComplexity, args["input"].(model.Register)), true
+
+	case "Mutation.tokenVerification":
+		if e.complexity.Mutation.TokenVerification == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_tokenVerification_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TokenVerification(childComplexity, args["input"].(model.TokenVerification)), true
 
 	case "Project.bids":
 		if e.complexity.Project.Bids == nil {
@@ -582,6 +596,7 @@ type Mutation {
   register(input: Register!): User!
   emailVerification(input: EmailVerification!): EmailVerificationResponse!
   login(input: Login!): LoginResponse!
+  tokenVerification(input: TokenVerification!): LoginResponse!
   createProject(input: NewProject!): Project!
   createBid(input: NewBid!): Bid!
 }
@@ -615,6 +630,10 @@ input EmailVerification {
 
 type EmailVerificationResponse {
   message: String!
+}
+
+input TokenVerification {
+  token: String!
 }
 
 input Login {
@@ -700,6 +719,21 @@ func (ec *executionContext) field_Mutation_register_args(ctx context.Context, ra
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNRegister2githubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐRegister(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_tokenVerification_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.TokenVerification
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNTokenVerification2githubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐTokenVerification(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1300,6 +1334,48 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().Login(rctx, args["input"].(model.Login))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LoginResponse)
+	fc.Result = res
+	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐLoginResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_tokenVerification(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_tokenVerification_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().TokenVerification(rctx, args["input"].(model.TokenVerification))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3640,6 +3716,26 @@ func (ec *executionContext) unmarshalInputRegister(ctx context.Context, obj inte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTokenVerification(ctx context.Context, obj interface{}) (model.TokenVerification, error) {
+	var it model.TokenVerification
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "token":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+			it.Token, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3795,6 +3891,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "login":
 			out.Values[i] = ec._Mutation_login(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "tokenVerification":
+			out.Values[i] = ec._Mutation_tokenVerification(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4478,6 +4579,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNTokenVerification2githubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐTokenVerification(ctx context.Context, v interface{}) (model.TokenVerification, error) {
+	res, err := ec.unmarshalInputTokenVerification(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋazzzubᚋjoblessᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

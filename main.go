@@ -155,16 +155,13 @@ func main() {
 		v1.GET("/auth/google/callback", func(c *gin.Context) {
 			user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 			if err != nil {
-				c.JSON(http.StatusBadGateway, gin.H{
-					"error": err.Error(),
-				})
+				c.Data(http.StatusBadGateway, "text/html", []byte(err.Error()))
 				return
 			}
 
 			checkEmail := model.User{}
 
-			err = db.Where("email = ? AND provider = ?", user.Email, "google").
-				First(&checkEmail).Error
+			err = db.Where("email = ?", user.Email).First(&checkEmail).Error
 			if err != nil && err.Error() == "record not found" {
 				// Make a random username by using ksuid package
 				newUser := model.User{
@@ -178,18 +175,14 @@ func main() {
 				// Register the user if the email with google provider doesn't exist
 				err = db.Create(&newUser).Error
 				if err != nil {
-					c.JSON(http.StatusBadGateway, gin.H{
-						"error": err.Error(),
-					})
+					c.Data(http.StatusBadGateway, "text/html", []byte(err.Error()))
 					return
 				}
 				err = db.Where("email = ? AND provider = ?", user.Email, "google").
 					First(&checkEmail).Error
 			}
 			if err != nil {
-				c.JSON(http.StatusBadGateway, gin.H{
-					"error": err.Error(),
-				})
+				c.Data(http.StatusBadGateway, "text/html", []byte(err.Error()))
 				return
 			}
 
@@ -197,7 +190,7 @@ func main() {
 				ID:    checkEmail.ID,
 				Email: checkEmail.Email,
 				StandardClaims: jwt.StandardClaims{
-					ExpiresAt: time.Now().Add(time.Hour * 24 * 2).Unix(),
+					ExpiresAt: time.Now().Add(time.Minute * 1).Unix(),
 				},
 			}
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -213,10 +206,10 @@ func main() {
 
 			t, err := template.New("redirect").Parse(RedirectHTML)
 			if err != nil {
-				c.JSON(http.StatusBadGateway, gin.H{
-					"error": err.Error(),
-				})
+				c.Data(http.StatusBadGateway, "text/html", []byte(err.Error()))
+				return
 			}
+
 			t.Execute(c.Writer, map[string]string{
 				"token": signedToken,
 			})

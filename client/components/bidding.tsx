@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client'
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useState } from 'react'
 
 const BID_MUTATION = gql`
   mutation Bid($project_id: Int!, $price: Int!, $comment: String!) {
@@ -18,16 +18,19 @@ interface BiddingProps {
   project_id: number
 }
 
-const Bidding: React.FC<BiddingProps> = ({ project_id }) => {
+interface BiddingProps {
+  callback: () => void
+}
+
+const Bidding: React.FC<BiddingProps> = ({ project_id, ...props }) => {
   const [price, setPrice] = useState(0)
   const [comment, setComment] = useState('')
-  const [response, setResponse] = useState<Bid>()
 
   const [bid, { loading, error }] = useMutation<SingleBid>(BID_MUTATION)
   const bidHandler = async (e: FormEvent): Promise<void> => {
     e.preventDefault()
     try {
-      const { data } = await bid({
+      await bid({
         variables: {
           project_id,
           price,
@@ -39,15 +42,11 @@ const Bidding: React.FC<BiddingProps> = ({ project_id }) => {
           },
         },
       })
-      setResponse(data?.bid)
+      props.callback()
     } catch (error) {
       // TODO
     }
   }
-
-  useEffect(() => {
-    // TODO
-  }, [response])
 
   return (
     <div>
