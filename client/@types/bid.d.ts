@@ -1,7 +1,7 @@
 interface Bid {
   ID: number
   bidder_id: number
-  bidder: user
+  bidder: User
   project_id: number
   project: Project
   price: number
@@ -13,4 +13,8 @@ interface Bid {
 
 interface Bids {
   bids: Bid[]
+}
+
+interface SingleBid {
+  bid: Bid
 }

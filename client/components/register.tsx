@@ -57,7 +57,7 @@ const Register: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log(response)
+    // TODO
   }, [response])
 
   return (

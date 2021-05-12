@@ -23,8 +23,8 @@ const GET_PROJECTS = gql`
 const App: React.FC = () => {
   const { loading, data, error } = useQuery<Projects>(GET_PROJECTS)
 
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error</p>
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error</div>
 
   return (
     <div>

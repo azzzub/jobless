@@ -1,5 +1,8 @@
 import { gql, useQuery } from '@apollo/client'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useState } from 'react'
+import Bidding from '../../components/bidding'
 
 const GET_PROJECT_ON_SLUG = gql`
   query Project($slug: String!) {
@@ -14,6 +17,14 @@ const GET_PROJECT_ON_SLUG = gql`
         first_name
         last_name
       }
+      bids {
+        bidder {
+          username
+        }
+        price
+        comment
+        created_at
+      }
       created_at
       updated_at
     }
@@ -22,6 +33,7 @@ const GET_PROJECT_ON_SLUG = gql`
 
 const ProjectDetails: React.FC = () => {
   const router = useRouter()
+  const [isBidClicked, setIsBidClicked] = useState(false)
   const { slug } = router.query
   const { loading, data, error } = useQuery<SingleProject>(GET_PROJECT_ON_SLUG, {
     variables: {
@@ -41,7 +53,22 @@ const ProjectDetails: React.FC = () => {
       <div>{data?.project.created_at}</div>
       <div>{data?.project.updated_at}</div>
       <div>{data?.project.creator.username}</div>
-      <button>Bid</button>
+      {data?.project.bids.map((bid, i) => {
+        return (
+          <div key={i}>
+            <div>{bid.bidder.username}</div>
+            <div>{bid.comment}</div>
+            <div>{bid.price}</div>
+          </div>
+        )
+      })}
+      <button onClick={() => setIsBidClicked(true)}>Bid</button>
+      {isBidClicked ? (
+        <Bidding project_id={data?.project.ID == undefined ? 0 : data.project.ID} />
+      ) : null}
+      <Link href="/">
+        <button>Back</button>
+      </Link>
     </div>
   )
 }
