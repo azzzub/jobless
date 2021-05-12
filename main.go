@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -202,12 +203,22 @@ func main() {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 			signedToken, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
-			c.JSON(http.StatusOK, gin.H{
-				"data": map[string]map[string]string{
-					"login": {
-						"token": signedToken,
-					},
-				},
+			const RedirectHTML = `
+			<head>
+  			<meta http-equiv="refresh" content="5; URL=http://localhost:3000/auth/callback?token={{.token}}" />
+				</head>
+			<body>
+  				<p>If you are not redirected in five seconds, <a href="http://localhost:3000/auth/callback?token={{.token}}">click here</a>.</p>
+			</body>`
+
+			t, err := template.New("redirect").Parse(RedirectHTML)
+			if err != nil {
+				c.JSON(http.StatusBadGateway, gin.H{
+					"error": err.Error(),
+				})
+			}
+			t.Execute(c.Writer, map[string]string{
+				"token": signedToken,
 			})
 		})
 	}

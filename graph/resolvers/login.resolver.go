@@ -38,10 +38,21 @@ func (r *mutationResolver) Login(ctx context.Context, input model.Login) (*model
 		},
 	}
 
+	refreshClaims := &rawModel.Token{
+		ID:    uint(user.ID),
+		Email: user.Email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 365).Unix(),
+		},
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	signedRefreshToken, _ := refreshToken.SignedString([]byte(os.Getenv("JWT_SECRET_REFRESH")))
 
 	loginResponse.Token = signedToken
+	loginResponse.RefreshToken = signedRefreshToken
 
 	return loginResponse, nil
 }

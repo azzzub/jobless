@@ -6,5 +6,6 @@ interface Login {
 interface LoginResponse {
   login: {
     token: string
+    refresh_token: string
   }
 }

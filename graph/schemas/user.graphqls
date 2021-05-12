@@ -36,4 +36,5 @@ input Login {
 
 type LoginResponse {
   token: String!
+  refresh_token: String!
 }

@@ -60,7 +60,8 @@ type ComplexityRoot struct {
 	}
 
 	LoginResponse struct {
-		Token func(childComplexity int) int
+		RefreshToken func(childComplexity int) int
+		Token        func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -204,6 +205,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EmailVerificationResponse.Message(childComplexity), true
+
+	case "LoginResponse.refresh_token":
+		if e.complexity.LoginResponse.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.LoginResponse.RefreshToken(childComplexity), true
 
 	case "LoginResponse.token":
 		if e.complexity.LoginResponse.Token == nil {
@@ -616,6 +624,7 @@ input Login {
 
 type LoginResponse {
   token: String!
+  refresh_token: String!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -1130,6 +1139,41 @@ func (ec *executionContext) _LoginResponse_token(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LoginResponse_refresh_token(ctx context.Context, field graphql.CollectedField, obj *model.LoginResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LoginResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshToken, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3705,6 +3749,11 @@ func (ec *executionContext) _LoginResponse(ctx context.Context, sel ast.Selectio
 			out.Values[i] = graphql.MarshalString("LoginResponse")
 		case "token":
 			out.Values[i] = ec._LoginResponse_token(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "refresh_token":
+			out.Values[i] = ec._LoginResponse_refresh_token(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

@@ -5,6 +5,7 @@ const LOGIN_MUTATION = gql`
   mutation Login($uoe: String!, $password: String!) {
     login(input: { uoe: $uoe, password: $password }) {
       token
+      refresh_token
     }
   }
 `
@@ -13,6 +14,7 @@ const Login: React.FC = () => {
   const [uoe, setUoe] = useState('')
   const [password, setPassword] = useState('')
   const [token, setToken] = useState<string>()
+  const [refreshToken, setRefreshToken] = useState<string>()
   const [loginMutation, { loading, error }] = useMutation<LoginResponse>(LOGIN_MUTATION)
 
   const loginHandler = async (e: FormEvent): Promise<void> => {
@@ -25,9 +27,11 @@ const Login: React.FC = () => {
         },
       })
       setToken(data?.login.token)
+      setRefreshToken(data?.login.refresh_token)
     } catch (error) {
       // Clearing token information on local storage if the login is failed
       localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
     }
   }
 
@@ -35,7 +39,10 @@ const Login: React.FC = () => {
     if (token !== undefined) {
       localStorage.setItem('token', token)
     }
-  }, [token])
+    if (refreshToken !== undefined) {
+      localStorage.setItem('refresh_token', refreshToken)
+    }
+  }, [token, refreshToken])
 
   return (
     <div className="login">
